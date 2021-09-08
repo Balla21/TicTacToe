@@ -11,8 +11,7 @@
 
 using namespace std;
 
-void resetGameBoard(char board[][7], int s)
-{
+void resetGameBoard(char board[][7], int s){
 	for (int i = 0; i<7; i++)
 	{
 		for (int j = 0; j<7; j++)
@@ -55,8 +54,7 @@ void drawGameBoard(char board[][7], int s){
 	printf("\n");
 }
 
-void player1Move(char board[][7], char find, int s)
-{
+void player1Move(char board[][7], char find, int s){
 	bool signal = 1;
 	for (int i = 0; i < s; i++)
 	{
@@ -76,62 +74,6 @@ void player1Move(char board[][7], char find, int s)
 	}
 }
 
-/*
-int gameCheck(char board[][7], int s){
-	int gameStatus = 0;
-	
-
-		// board[1][1] = '.';
-		// board[1][3] = '1';
-		// board[1][5] = '2';
-		// board[3][1] = '3';
-		// board[3][3] = '4';
-		// board[3][5] = '5';
-		// board[5][1] = '6';
-		// board[5][3] = '7';
-		// board[5][5] = '8';
-
-	// player 1 is winner
-	if (
-		//horizontal checking
-		board[1][1] == 'X' && board[1][3] == 'X' && board[1][5] == 'X' ||
-		board[3][1] == 'X' && board[3][3] == 'X' && board[3][5] == 'X' ||
-		board[5][1] == 'X' && board[5][3] == 'X' && board[5][5] == 'X' ||
-
-		//vertical checking
-		board[1][1] == 'X' && board[3][1] == 'X' && board[5][1] == 'X' ||
-		board[1][3] == 'X' && board[3][3] == 'X' && board[5][3] == 'X' ||
-		board[1][5] == 'X' && board[3][5] == 'X' && board[5][5] == 'X' ||
-
-		//diagonal checking
-		board[1][1] == 'X' && board[3][3] == 'X'&& board[5][5] == 'X' ||
-		board[1][5] == 'X' && board[3][3] == 'X'&& board[5][1] == 'X')
-	{
-		gameStatus = 1;
-	}
-
-	// player 2 is winner
-	else if (
-			//horizontal checking
-			board[1][1] == 'O' && board[1][3] == 'O' && board[1][5] == 'O' ||
-			board[3][1] == 'O' && board[3][3] == 'O' && board[3][5] == 'O' ||
-			board[5][1] == 'O' && board[5][3] == 'O' && board[5][5] == 'O' ||
-
-			//vertical checking
-			board[1][1] == 'O' && board[3][1] == 'O' && board[5][1] == 'O' ||
-			board[1][3] == 'O' && board[3][3] == 'O' && board[5][3] == 'O' ||
-			board[1][5] == 'O' && board[3][5] == 'O' && board[5][5] == 'O' ||
-
-			//diagonal checking
-			board[1][1] == 'O' && board[3][3] == 'O' && board[5][5] == 'O' ||
-			board[1][5] == 'O' && board[3][3] == 'O' && board[5][1] == 'O')
-	{
-		gameStatus = 2;
-	}
-
-	return gameStatus;
-}
-*/
 
 int gameCheck(char board[][7], int s){
 	int gameResult = 0;
@@ -239,7 +181,7 @@ int main() {
 	else{
 		printf("DRAW");
 	}
-	
+
 	close(fd_wr);
 	close(fd_rd);
 	unlink(myfifo_1to2);

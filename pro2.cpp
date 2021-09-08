@@ -11,6 +11,93 @@
 
 using namespace std;
 
+char userInput();
+void resetGameBoard(char board[][7], int s);
+void drawGameBoard(char board[][7], int s);
+void player2Move(char board[][7], char find, int s);
+int gameCheck(char board[][7], int s);
+
+
+//char rd_data[MAX], wr_data[MAX];
+
+int main(){
+	int gameResult;
+	int numberMoves = 1;
+	char choice;
+    char board[7][7];
+
+	// create the named pipe (FIFO) if not created yet
+	int f1 = mkfifo(myfifo_1to2, 0666);
+	int f2 = mkfifo(myfifo_2to1, 0666);
+	printf("@p2: f1 = %d  f2 = %d\n", f1, f2);
+
+	printf("searching for player ... \n");
+	// P1&P2: order of open is important to unblock process
+	// open() for RD will be blocked until the other side is open for WR
+	int fd_rd = open(myfifo_1to2, O_RDONLY);
+	// open() for WR will be blocked until the other side is open for RD
+	int	fd_wr = open(myfifo_2to1, O_WRONLY);
+
+	printf("opponent found\n");
+	// prog2: read first
+	while (true || gameResult != 1 || gameResult != 2)
+	{
+		read(fd_rd, board, sizeof(board));
+		drawGameBoard(board, 7);
+
+		//check playing status 
+		gameResult = gameCheck(board, 7);
+		if (gameResult == 1 || gameResult == 2 ){
+			break;
+		}
+
+		if(numberMoves == 5){
+			break;
+		}
+		printf("move number %d\n", numberMoves);
+
+		// user input validation
+		choice = userInput();
+				
+		player2Move(board, choice, 7);
+		write(fd_wr, board, sizeof(board) );
+		
+		//checking game status
+		gameResult = gameCheck(board, 7);
+		if (gameResult == 1 || gameResult == 2 ){
+			break;
+		}
+		
+		numberMoves++;
+	}
+	printf("--------GAME OVER--------\n");
+	if(gameResult == 1){
+		printf("PLAYER 1 WINS\n");
+	}
+	else if(gameResult == 2){
+		printf("PLAYER 2 WINS\n");
+	}
+	else{
+		printf("DRAW\n");
+	}
+	
+	close(fd_rd);
+	close(fd_wr);
+	
+}
+
+char userInput(){
+	char position;
+	do{
+			printf("Your turn[O], pick a position from board: ");
+			cin >> position;
+		}
+		while( (position != '.') && (position != '1') && (position != '2') && (position != '3') && (position != '4') && 
+				(position != '5') && (position != '6') && (position != '7') && (position != '8') );
+	return position;
+}
+
+
 void resetGameBoard(char board[][7], int s){
 	for (int i = 0; i<7; i++)
 	{
@@ -114,79 +201,4 @@ int gameCheck(char board[][7], int s){
 		gameResult = 2;
 	}
 	return gameResult;
-}
-
-char rd_data[MAX], wr_data[MAX];
-
-int main()
-{
-	int gameResult;
-	int numberMoves = 1;
-	char choice;
-    char board[7][7];
-
-	// create the named pipe (FIFO) if not created yet
-	int f1 = mkfifo(myfifo_1to2, 0666);
-	int f2 = mkfifo(myfifo_2to1, 0666);
-	printf("@p2: f1 = %d  f2 = %d\n", f1, f2);
-
-	printf("searching for player ... \n");
-	// P1&P2: order of open is important to unblock process
-	// open() for RD will be blocked until the other side is open for WR
-	int fd_rd = open(myfifo_1to2, O_RDONLY);
-	// open() for WR will be blocked until the other side is open for RD
-	int	fd_wr = open(myfifo_2to1, O_WRONLY);
-
-	printf("opponent found\n");
-	// prog2: read first
-	//while (true || remainingMoves <= 3 || gameResult != 1 || gameResult != 2)
-	while (true || gameResult != 1 || gameResult != 2)
-	{
-		read(fd_rd, board, sizeof(board));
-		drawGameBoard(board, 7);
-
-		//check playing status 
-		gameResult = gameCheck(board, 7);
-		if (gameResult == 1 || gameResult == 2 ){
-			break;
-		}
-
-		if(numberMoves == 5){
-			break;
-		}
-		printf("move number %d\n", numberMoves);
-
-		// user input validation
-		do{
-			printf("Your turn[X], pick a position from board: ");
-			cin >> choice;
-		}
-		while( (choice != '.') && (choice != '1') && (choice != '2') && (choice != '3') && (choice != '4') && 
-				(choice != '5') && (choice != '6') && (choice != '7') && (choice != '8') );
-				
-		player2Move(board, choice, 7);
-		write(fd_wr, board, sizeof(board) );
-		
-		//checking game status
-		gameResult = gameCheck(board, 7);
-		if (gameResult == 1 || gameResult == 2 ){
-			break;
-		}
-		
-		numberMoves++;
-	}
-	printf("--------GAME OVER--------\n");
-	if(gameResult == 1){
-		printf("PLAYER 1 WINS\n");
-	}
-	else if(gameResult == 2){
-		printf("PLAYER 2 WINS\n");
-	}
-	else{
-		printf("DRAW\n");
-	}
-	
-	close(fd_rd);
-	close(fd_wr);
-	
 }

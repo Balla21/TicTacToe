@@ -144,12 +144,26 @@ int main()
 	{
 		read(fd_rd, board, sizeof(board));
 		drawGameBoard(board, 7);
+
+		//check playing status 
+		gameResult = gameCheck(board, 7);
+		if (gameResult == 1 || gameResult == 2 ){
+			break;
+		}
+
 		if(numberMoves == 5){
 			break;
 		}
 		printf("move number %d\n", numberMoves);
-		printf("Your turn[O], pick a position from board: ");
-		cin >> choice;
+
+		// user input validation
+		do{
+			printf("Your turn[X], pick a position from board: ");
+			cin >> choice;
+		}
+		while( (choice != '.') && (choice != '1') && (choice != '2') && (choice != '3') && (choice != '4') && 
+				(choice != '5') && (choice != '6') && (choice != '7') && (choice != '8') );
+				
 		player2Move(board, choice, 7);
 		write(fd_wr, board, sizeof(board) );
 		
@@ -163,13 +177,13 @@ int main()
 	}
 	printf("--------GAME OVER--------\n");
 	if(gameResult == 1){
-		printf("PLAYER 1 WINS");
+		printf("PLAYER 1 WINS\n");
 	}
 	else if(gameResult == 2){
-		printf("PLAYER 2 WINS");
+		printf("PLAYER 2 WINS\n");
 	}
 	else{
-		printf("DRAW");
+		printf("DRAW\n");
 	}
 	
 	close(fd_rd);

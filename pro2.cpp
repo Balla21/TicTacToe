@@ -18,92 +18,83 @@ void player2Move(char board[][7], char find, int s);
 int gameCheck(char board[][7], int s);
 
 
-//char rd_data[MAX], wr_data[MAX];
 
 int main(){
-	int gameResult;
-	int numberMoves = 1;
+	int gameResult, numberMoves = 1;;
 	char choice;
-    char board[7][7];
+	// board game
+	char board[7][7];
 
-	// create the named pipe (FIFO) if not created yet
+	// establishing connection between players
 	int f1 = mkfifo(myfifo_1to2, 0666);
 	int f2 = mkfifo(myfifo_2to1, 0666);
 	printf("@p2: f1 = %d  f2 = %d\n", f1, f2);
-
-	printf("searching for player ... \n");
-	// P1&P2: order of open is important to unblock process
-	// open() for RD will be blocked until the other side is open for WR
+	printf("searching for opponent ... \n");
 	int fd_rd = open(myfifo_1to2, O_RDONLY);
-	// open() for WR will be blocked until the other side is open for RD
 	int	fd_wr = open(myfifo_2to1, O_WRONLY);
-
 	printf("opponent found\n");
-	// prog2: read first
-	while (true || gameResult != 1 || gameResult != 2)
-	{
+
+	//starting game
+	while (true || gameResult != 1 || gameResult != 2){
 		read(fd_rd, board, sizeof(board));
 		drawGameBoard(board, 7);
 
-		//check playing status 
+		//checking playing status 
 		gameResult = gameCheck(board, 7);
 		if (gameResult == 1 || gameResult == 2 ){
 			break;
 		}
-
 		if(numberMoves == 5){
 			break;
 		}
-		printf("move number %d\n", numberMoves);
 
-		// user input validation
+		// user input validation checking for the board
 		choice = userInput();
-				
 		player2Move(board, choice, 7);
+
+		//communication with the other player
 		write(fd_wr, board, sizeof(board) );
-		
-		//checking game status
-		gameResult = gameCheck(board, 7);
-		if (gameResult == 1 || gameResult == 2 ){
-			break;
-		}
-		
 		numberMoves++;
 	}
+
+	// display game result
 	printf("--------GAME OVER--------\n");
 	if(gameResult == 1){
-		printf("PLAYER 1 WINS\n");
+		printf("PLAYER 1 WINS\n\n");
 	}
 	else if(gameResult == 2){
-		printf("PLAYER 2 WINS\n");
+		printf("PLAYER 2 WINS\n\n");
 	}
 	else{
-		printf("DRAW\n");
+		printf("DRAW\n\n");
 	}
-	
+
+	//closing connection between players
 	close(fd_rd);
 	close(fd_wr);
 	
 }
 
+//validation of user input
 char userInput(){
 	char position;
 	do{
-			printf("Your turn[O], pick a position from board: ");
-			cin >> position;
-		}
-		while( (position != '.') && (position != '1') && (position != '2') && (position != '3') && (position != '4') && 
-				(position != '5') && (position != '6') && (position != '7') && (position != '8') );
+		printf("Your turn[O], pick a position from board: ");
+		cin >> position;
+	}
+	while( (position != '.') && (position != '1') && (position != '2') && (position != '3') && (position != '4') && 
+			(position != '5') && (position != '6') && (position != '7') && (position != '8') );
 	return position;
 }
 
 
+//initialize the game board for players
 void resetGameBoard(char board[][7], int s){
 	for (int i = 0; i<7; i++)
 	{
 		for (int j = 0; j<7; j++)
 		{
-			board[i][j] = 'X';
+			board[i][j] = 'E';
 		}
 	}
 	board[1][1] = '.';
@@ -117,6 +108,7 @@ void resetGameBoard(char board[][7], int s){
 	board[5][5] = '8';
 }
 
+// create the game board for players
 void drawGameBoard(char board[][7], int s){
 	for(int line = 0; line < s; line++){
 		for (int col = 0; col < 7; col++) {
@@ -141,6 +133,8 @@ void drawGameBoard(char board[][7], int s){
 	printf("\n");
 }
 
+
+// process player's choice on the board
 void player2Move(char board[][7], char find, int s){
 	bool signal = 1;
 	for (int i = 0; i < s; i++)
@@ -161,6 +155,8 @@ void player2Move(char board[][7], char find, int s){
 	}
 }
 
+
+//check playing status
 int gameCheck(char board[][7], int s){
 	int gameResult = 0;
 	// player 1 is winner

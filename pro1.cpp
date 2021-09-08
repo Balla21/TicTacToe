@@ -1,10 +1,10 @@
-#include <unistd.h> // open() close()
-#include <fcntl.h> // O_* constants
-#include <sys/stat.h>  // mkfifo()
-#include <sys/types.h> // mkfifo()
-#include <string.h> // strlen() strcmp()
-#include <stdio.h> // printf() scanf()
-#include <stdlib.h> // exit()
+#include <unistd.h> 
+#include <fcntl.h> 
+#include <sys/stat.h>  
+#include <sys/types.h> 
+#include <string.h> 
+#include <stdio.h> 
+#include <stdlib.h> 
 #include <iostream>
 
 #include "const.h"
@@ -18,11 +18,9 @@ void drawGameBoard(char board[][7], int s);
 void player1Move(char board[][7], char find, int s);
 int gameCheck(char board[][7], int s);
 
-//char rd_data[MAX], wr_data[MAX];
 
 int main() {
-	int gameResult;
-	int numberMoves = 1;
+	int gameResult, numberMoves = 1;;
 	char choice;
 	// board game
 	char board[7][7];
@@ -31,83 +29,77 @@ int main() {
 	int f1 = mkfifo(myfifo_1to2, 0666);
 	int f2 = mkfifo(myfifo_2to1, 0666);
 	printf("@p1: f1 = %d  f2 = %d\n", f1, f2);
-
 	printf("Searching for opponent... \n");
-
-	// P1&P2: order of open() is important to unblock processes
-	// open() for WR will be blocked until the other side is open for RD
 	int fd_wr = open(myfifo_1to2, O_WRONLY);
-	// open() for RD will be blocked until the other side is open for WR
 	int	fd_rd = open(myfifo_2to1, O_RDONLY);
 
-	printf("TIC TAC TOE GAME\n");
+	//beginning of the game
+	printf("-------TIC TAC TOE GAME-------\n");
 	resetGameBoard(board, 7);
 	drawGameBoard(board, 7);
 
-	// prog1: write first
-	//while (true || remainingMoves < 9 || result != 1 || result != 2) {
+	//starting game
 	while (true || gameResult != 1 || gameResult != 2 ) {
-
 		//check playing status 
 		gameResult = gameCheck(board, 7);
 		if (gameResult == 1 || gameResult == 2 ){
 			break;
 		}
-
 		if(numberMoves == 5){
 			break;
 		}
 
-		printf("move number %d\n", numberMoves);
-
-		// user input validation for the board
+		// user input validation checking for the board
 		choice = userInput();
-		
 		player1Move(board, choice, 7);
 
+		// communication with the other player
 		write(fd_wr, board, sizeof(board) );
 		read(fd_rd, board, sizeof(board) );
 		drawGameBoard(board, 7);
 		
 		numberMoves++;
 	}
+
+	// display game result
 	printf("--------GAME OVER--------\n");
 	if(gameResult == 1){
-		printf("PLAYER 1 WINS\n");
+		printf("PLAYER 1 WINS\n\n");
 	}
 	else if(gameResult == 2){
-		printf("PLAYER 2 WINS\n");
+		printf("PLAYER 2 WINS\n\n");
 	}
 	else{
-		printf("DRAW\n");
+		printf("DRAW\n\n");
 	}
 
-	//close connection between players
+	//closing connection between players
 	close(fd_wr);
 	close(fd_rd);
 	unlink(myfifo_1to2);
 	unlink(myfifo_2to1);
-
 }
 
+// input validation
 char userInput(){
 	char position;
 	do{
-			printf("Your turn[X], pick a position from board: ");
-			cin >> position;
-		}
-		while( (position != '.') && (position != '1') && (position != '2') && (position != '3') && (position != '4') && 
-				(position != '5') && (position != '6') && (position != '7') && (position != '8') );
+		printf("Your turn[X], pick a position from board: ");
+		cin >> position;
+	}
+	while( (position != '.') && (position != '1') && (position != '2') && (position != '3') && (position != '4') && 
+			(position != '5') && (position != '6') && (position != '7') && (position != '8') );
 	return position;
 }
 
 
+//Initializing game board
 void resetGameBoard(char board[][7], int s){
 	for (int i = 0; i<7; i++)
 	{
 		for (int j = 0; j<7; j++)
 		{
-			board[i][j] = 'X';
+			board[i][j] = 'E';
 		}
 	}
 	board[1][1] = '.';
@@ -121,6 +113,7 @@ void resetGameBoard(char board[][7], int s){
 	board[5][5] = '8';
 }
 
+//drawing game board
 void drawGameBoard(char board[][7], int s){
 	for(int line = 0; line < s; line++){
 		for (int col = 0; col < 7; col++) {
@@ -145,6 +138,7 @@ void drawGameBoard(char board[][7], int s){
 	printf("\n");
 }
 
+//processing player 1 move
 void player1Move(char board[][7], char find, int s){
 	bool signal = 1;
 	for (int i = 0; i < s; i++)
@@ -166,6 +160,7 @@ void player1Move(char board[][7], char find, int s){
 }
 
 
+//verification of gaming status
 int gameCheck(char board[][7], int s){
 	int gameResult = 0;
 	// player 1 is winner

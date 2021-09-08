@@ -121,7 +121,7 @@ char rd_data[MAX], wr_data[MAX];
 int main()
 {
 	int gameResult;
-	int remainingMoves = 1;
+	int numberMoves = 1;
 	char choice;
     char board[7][7];
 
@@ -139,10 +139,15 @@ int main()
 
 	printf("opponent found\n");
 	// prog2: read first
-	while (true || remainingMoves <= 3 || gameResult != 1 || gameResult != 2)
+	//while (true || remainingMoves <= 3 || gameResult != 1 || gameResult != 2)
+	while (true || gameResult != 1 || gameResult != 2)
 	{
 		read(fd_rd, board, sizeof(board));
 		drawGameBoard(board, 7);
+		if(numberMoves == 5){
+			break;
+		}
+		printf("move number %d\n", numberMoves);
 		printf("Your turn[O], pick a position from board: ");
 		cin >> choice;
 		player2Move(board, choice, 7);
@@ -153,7 +158,8 @@ int main()
 		if (gameResult == 1 || gameResult == 2 ){
 			break;
 		}
-		remainingMoves++;
+		
+		numberMoves++;
 	}
 	printf("--------GAME OVER--------\n");
 	if(gameResult == 1){

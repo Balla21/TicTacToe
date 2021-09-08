@@ -182,7 +182,7 @@ char rd_data[MAX], wr_data[MAX];
 
 int main() {
 	int gameResult;
-	int remainingMoves = 1;
+	int numberMoves = 1;
 	char choice;
 	// board game
 	char board[7][7];
@@ -206,8 +206,12 @@ int main() {
 
 	// prog1: write first
 	//while (true || remainingMoves < 9 || result != 1 || result != 2) {
-	while (true || remainingMoves <= 4 || gameResult != 1 || gameResult != 2 ) {
+	while (true || gameResult != 1 || gameResult != 2 ) {
 		//printf("Player 1 plays with X, choose a position on the board : ");
+		if(numberMoves == 5){
+			break;
+		}
+		printf("move number %d\n", numberMoves);
 		printf("Your turn[X], pick a position from board: ");
 		cin >> choice;
 		player1Move(board, choice, 7);	
@@ -220,7 +224,10 @@ int main() {
 		if (gameResult == 1 || gameResult == 2 ){
 			break;
 		}
-		remainingMoves++;
+		if(numberMoves == 5){
+			break;
+		}
+		numberMoves++;
 	}
 	printf("--------GAME OVER--------\n");
 	if(gameResult == 1){
@@ -232,8 +239,7 @@ int main() {
 	else{
 		printf("DRAW");
 	}
-	printf("%d\n", gameResult);
-
+	
 	close(fd_wr);
 	close(fd_rd);
 	unlink(myfifo_1to2);
